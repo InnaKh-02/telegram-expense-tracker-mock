@@ -1,0 +1,17 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual env
+.venv/
+
+# Test cache
+.pytest_cache/
+
+# Environment files with secrets
+.env
+
+# IDE / editor
+.vscode/
+.idea/

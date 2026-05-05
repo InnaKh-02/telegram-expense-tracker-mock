@@ -1,8 +1,46 @@
 from __future__ import annotations
 
+import logging
+from typing import Optional
+from google import genai
+from config import get_gemini_api_key
+
+logger = logging.getLogger(__name__)
+
+try:
+    client = genai.Client(api_key=get_gemini_api_key())
+except Exception as e:
+    logger.error(f"Failed to initialize Gemini client: {e}")
+    client = None
+
+def get_summary(user_message:str, chat_history:Optional[str] = None) -> str:
+    if not client:
+        return "Error: Gemini client is not initialized. Please check the logs for details."
+    try:
+        system_instructions = """
+        Ти - розумний асистент для трекінгу особистих витрат.
+        Користувач надсилає повідомлення про витрати (наприклад: "Обід 250 грн", "Таксі 180", "Купив каву 65").
+        Твоє завдання:
+        1. Розпізнати дату (якщо не вказано - сьогодні).
+        2. Витягти категорію (Їжа, Транспорт, Розваги тощо).
+        3. Витягти суму та валюту.
+        4. Зробити красивий, структурований summary за днями та категоріями.
+
+        Відповідай тільки готовим summary, без зайвих пояснень. 
+        """
+        full_prompt = f"{system_instructions}\n\nUser: {user_message}"
+
+        response = client.models.generate_content(
+            model="gemini-2.5-flash-lite",
+            contents=full_prompt,
+        )
+        return response.text.strip()
+    except Exception as e:
+        logger.exception("Gemini API error")
+        return f"Sorry, I couldn't generate the summary due to an error: {str(e)[:200]}"
+
 
 def get_mocked_summary() -> str:
-    # Intentionally static: demo-only, no persistence, no per-user calculations.
     return (
         "Expense summary (example data)\n"
         "\n"

@@ -5,7 +5,7 @@ import os
 
 def _try_load_dotenv() -> None:
     try:
-        from dotenv import load_dotenv  # type: ignore
+        from dotenv import load_dotenv
     except Exception:
         return
     load_dotenv()
@@ -19,3 +19,12 @@ def get_bot_token() -> str:
             "Missing TELEGRAM_BOT_TOKEN. Set it in your environment (or in a .env file)."
         )
     return token
+
+def get_gemini_api_key() -> str:
+    _try_load_dotenv()
+    api_key = os.getenv("GEMINI_API_KEY", "").strip()
+    if not api_key:
+        raise RuntimeError(
+            "Missing GEMINI_API_KEY. Set it in your environment (or in a .env file)."
+        )
+    return api_key

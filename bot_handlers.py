@@ -5,7 +5,7 @@ import logging
 from telegram import ReplyKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
-from services.summary import get_mocked_summary
+from services.summary import get_summary
 
 logger = logging.getLogger(__name__)
 
@@ -101,11 +101,11 @@ async def expense_message_handler(
         )
         return
 
-    # Ignore actual content intentionally (mock-only behavior).
+    user_text = update.effective_message.text
     try:
-        summary = get_mocked_summary()
+        summary = get_summary(user_text)
     except Exception:
-        logger.exception("Failed to build mocked summary")
+        logger.exception("Failed to get summary from Gemini")
         await update.effective_message.reply_text(
             "Sorry—something went wrong generating the summary."
         )
